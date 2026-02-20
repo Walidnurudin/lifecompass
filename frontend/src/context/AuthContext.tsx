@@ -35,14 +35,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const login = async (email: string, password: string) => {
         const data = await authAPI.login(email, password);
-        // Manually set cookie for the frontend domain so middleware can see it
         Cookies.set('token', data.token, { expires: 3 }); // 3 days
         setUser(data.user);
     };
 
     const register = async (email: string, password: string) => {
         const data = await authAPI.register(email, password);
-        // Manually set cookie for the frontend domain
         Cookies.set('token', data.token, { expires: 3 });
         setUser(data.user);
     };
