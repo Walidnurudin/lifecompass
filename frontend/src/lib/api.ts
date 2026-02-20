@@ -1,3 +1,5 @@
+import Cookies from 'js-cookie';
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
 
 interface FetchOptions extends RequestInit {
@@ -6,12 +8,14 @@ interface FetchOptions extends RequestInit {
 
 async function apiFetch<T>(endpoint: string, options: FetchOptions = {}): Promise<T> {
     const url = `${API_URL}${endpoint}`;
+    const token = Cookies.get('token');
 
     const config: RequestInit = {
         ...options,
         credentials: 'include',
         headers: {
             'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
             ...options.headers,
         },
     };
