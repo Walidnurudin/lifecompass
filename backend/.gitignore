@@ -1,0 +1,13 @@
+# Binaries
+main
+*.exe
+
+# Environment — NEVER commit secrets
+.env
+.env.local
+
+# Go build cache
+/tmp/
+
+# OS
+.DS_Store

@@ -1,0 +1,12 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Env files — NEVER commit secrets
+.env
+.env.local
+.env.*.local
+
+# Editor
+.vscode/
+.idea/

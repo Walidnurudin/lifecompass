@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: lifecompass-api
+    runtime: go
+    rootDir: backend
+    buildCommand: go build -o main main.go
+    startCommand: ./main
+    envVars:
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: "5432"
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: DB_SSLMODE
+        value: "require"
+      - key: JWT_SECRET
+        generateValue: true
+      - key: PORT
+        value: "8080"
+      - key: FRONTEND_URL
+        sync: false
