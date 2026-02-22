@@ -192,3 +192,32 @@ export interface UpdateCashFlowData {
     description?: string;
     date?: string;
 }
+
+// Note API
+export const noteAPI = {
+    get: () =>
+        apiFetch<{ note: Note }>('/note'),
+
+    update: (content: string) =>
+        apiFetch<{ note: Note }>('/note', {
+            method: 'PUT',
+            body: JSON.stringify({ content }),
+        }),
+};
+
+export interface Note {
+    id: string;
+    user_id: string;
+    content: string;
+    created_at: string;
+    updated_at: string;
+}
+
+// AI API
+export const aiAPI = {
+    consult: (message: string) =>
+        apiFetch<{ reply: string }>('/chat', {
+            method: 'POST',
+            body: JSON.stringify({ message }),
+        }),
+};
