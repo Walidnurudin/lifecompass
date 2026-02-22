@@ -18,6 +18,7 @@ type CreateTaskInput struct {
 	Status      string  `json:"status"`
 	DueDate     *string `json:"due_date"`
 	Priority    string  `json:"priority"`
+	Category    string  `json:"category"`
 }
 
 type UpdateTaskInput struct {
@@ -26,10 +27,12 @@ type UpdateTaskInput struct {
 	Status      *string `json:"status"`
 	DueDate     *string `json:"due_date"`
 	Priority    *string `json:"priority"`
+	Category    *string `json:"category"`
 }
 
 var validStatuses = map[string]bool{"todo": true, "in_progress": true, "done": true}
 var validPriorities = map[string]bool{"low": true, "medium": true, "high": true}
+var validCategories = map[string]bool{"task": true, "hobby": true, "event": true}
 
 func GetTasks(c *gin.Context) {
 	userID := c.MustGet("userID").(uuid.UUID)
@@ -130,12 +133,24 @@ func CreateTask(c *gin.Context) {
 		priority = p
 	}
 
+	// Validate category
+	category := "task"
+	if input.Category != "" {
+		cat := strings.ToLower(input.Category)
+		if !validCategories[cat] {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid category. Must be: task, hobby, or event"})
+			return
+		}
+		category = cat
+	}
+
 	task := models.Task{
 		UserID:      userID,
 		Title:       strings.TrimSpace(input.Title),
 		Description: input.Description,
 		Status:      status,
 		Priority:    priority,
+		Category:    category,
 	}
 
 	if input.DueDate != nil && *input.DueDate != "" {
@@ -225,6 +240,15 @@ func UpdateTask(c *gin.Context) {
 			return
 		}
 		task.Priority = p
+	}
+
+	if input.Category != nil {
+		cat := strings.ToLower(*input.Category)
+		if !validCategories[cat] {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid category. Must be: task, hobby, or event"})
+			return
+		}
+		task.Category = cat
 	}
 
 	if input.DueDate != nil {

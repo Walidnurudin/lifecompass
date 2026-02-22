@@ -40,6 +40,15 @@ func SetupRouter() *gin.Engine {
 			tasks.PUT("/:id", handlers.UpdateTask)
 			tasks.DELETE("/:id", handlers.DeleteTask)
 		}
+
+		cashflow := api.Group("/cashflow")
+		cashflow.Use(middleware.AuthMiddleware())
+		{
+			cashflow.GET("", handlers.GetCashFlows)
+			cashflow.POST("", handlers.CreateCashFlow)
+			cashflow.PUT("/:id", handlers.UpdateCashFlow)
+			cashflow.DELETE("/:id", handlers.DeleteCashFlow)
+		}
 	}
 
 	return r

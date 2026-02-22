@@ -15,6 +15,7 @@ type Task struct {
 	Status      string     `gorm:"not null;default:'todo'" json:"status"`
 	DueDate     *time.Time `json:"due_date"`
 	Priority    string     `gorm:"not null;default:'medium'" json:"priority"`
+	Category    string     `gorm:"not null;default:'task'" json:"category"`
 	CreatedAt   time.Time  `json:"created_at"`
 	UpdatedAt   time.Time  `json:"updated_at"`
 }
@@ -28,6 +29,9 @@ func (t *Task) BeforeCreate(tx *gorm.DB) error {
 	}
 	if t.Priority == "" {
 		t.Priority = "medium"
+	}
+	if t.Category == "" {
+		t.Category = "task"
 	}
 	return nil
 }

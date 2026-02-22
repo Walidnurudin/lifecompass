@@ -57,6 +57,7 @@ export const taskAPI = {
         const searchParams = new URLSearchParams();
         if (params?.status) searchParams.set('status', params.status);
         if (params?.priority) searchParams.set('priority', params.priority);
+        if (params?.category) searchParams.set('category', params.category);
         if (params?.due_date) searchParams.set('due_date', params.due_date);
         if (params?.sort_by) searchParams.set('sort_by', params.sort_by);
         if (params?.order) searchParams.set('order', params.order);
@@ -98,6 +99,7 @@ export interface Task {
     title: string;
     description: string | null;
     status: 'todo' | 'in_progress' | 'done';
+    category: 'task' | 'hobby' | 'event';
     due_date: string | null;
     priority: 'low' | 'medium' | 'high';
     created_at: string;
@@ -108,6 +110,7 @@ export interface CreateTaskData {
     title: string;
     description?: string;
     status?: string;
+    category?: string;
     due_date?: string;
     priority?: string;
 }
@@ -116,6 +119,7 @@ export interface UpdateTaskData {
     title?: string;
     description?: string;
     status?: string;
+    category?: string;
     due_date?: string;
     priority?: string;
 }
@@ -123,7 +127,68 @@ export interface UpdateTaskData {
 export interface TaskQueryParams {
     status?: string;
     priority?: string;
+    category?: string;
     due_date?: string;
     sort_by?: string;
     order?: string;
+}
+
+// Cash Flow API
+export const cashFlowAPI = {
+    getAll: (params?: { month?: string; year?: string; sort_by?: string; order?: string }) => {
+        const searchParams = new URLSearchParams();
+        if (params?.month) searchParams.set('month', params.month);
+        if (params?.year) searchParams.set('year', params.year);
+        if (params?.sort_by) searchParams.set('sort_by', params.sort_by);
+        if (params?.order) searchParams.set('order', params.order);
+
+        const query = searchParams.toString();
+        return apiFetch<{ cash_flows: CashFlow[] }>(`/cashflow${query ? `?${query}` : ''}`);
+    },
+
+    create: (data: CreateCashFlowData) =>
+        apiFetch<{ cash_flow: CashFlow }>('/cashflow', {
+            method: 'POST',
+            body: JSON.stringify(data),
+        }),
+
+    update: (id: string, data: UpdateCashFlowData) =>
+        apiFetch<{ cash_flow: CashFlow }>(`/cashflow/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(data),
+        }),
+
+    delete: (id: string) =>
+        apiFetch<{ message: string }>(`/cashflow/${id}`, { method: 'DELETE' }),
+};
+
+export interface CashFlow {
+    id: string;
+    user_id: string;
+    title: string;
+    type: 'income' | 'outcome';
+    category: string;
+    amount: number;
+    description: string | null;
+    date: string | null;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface CreateCashFlowData {
+    title: string;
+    type: string;
+    category: string;
+    amount: number;
+    description?: string;
+    date?: string;
+}
+
+export interface UpdateCashFlowData {
+    title?: string;
+    type?: string;
+    category?: string;
+    amount?: number;
+    description?: string;
+    date?: string;
 }
