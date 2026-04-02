@@ -10,3 +10,26 @@ Thumbs.db
 # Editor
 .vscode/
 .idea/
+
+# Node
+node_modules/
+npm-debug.log
+
+# Next.js
+.next/
+out/
+dist/
+build/
+
+# Turborepo
+.turbo/
+
+# Go
+backend/backend
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
