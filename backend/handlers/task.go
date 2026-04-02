@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"net/http"
 	"strings"
 	"time"
@@ -11,6 +12,16 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
+
+func invalidateTaskCache(userID uuid.UUID) {
+	if database.RDB == nil {
+		return
+	}
+	iter := database.RDB.Scan(database.Ctx, 0, "tasks:"+userID.String()+":*", 0).Iterator()
+	for iter.Next(database.Ctx) {
+		database.RDB.Del(database.Ctx, iter.Val())
+	}
+}
 
 type CreateTaskInput struct {
 	Title       string  `json:"title" binding:"required"`
@@ -36,6 +47,18 @@ var validCategories = map[string]bool{"task": true, "hobby": true, "event": true
 
 func GetTasks(c *gin.Context) {
 	userID := c.MustGet("userID").(uuid.UUID)
+
+	cacheKey := "tasks:" + userID.String() + ":" + c.Request.URL.RawQuery
+	if database.RDB != nil {
+		cached, err := database.RDB.Get(database.Ctx, cacheKey).Result()
+		if err == nil {
+			var tasks []models.Task
+			if json.Unmarshal([]byte(cached), &tasks) == nil {
+				c.JSON(http.StatusOK, gin.H{"tasks": tasks})
+				return
+			}
+		}
+	}
 
 	query := database.DB.Where("user_id = ?", userID)
 
@@ -97,6 +120,12 @@ func GetTasks(c *gin.Context) {
 	if err := query.Find(&tasks).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch tasks"})
 		return
+	}
+
+	if database.RDB != nil {
+		if jsonData, err := json.Marshal(tasks); err == nil {
+			database.RDB.Set(database.Ctx, cacheKey, jsonData, 5*time.Minute)
+		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{"tasks": tasks})
@@ -166,6 +195,8 @@ func CreateTask(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create task"})
 		return
 	}
+
+	invalidateTaskCache(userID)
 
 	c.JSON(http.StatusCreated, gin.H{"task": task})
 }
@@ -269,6 +300,8 @@ func UpdateTask(c *gin.Context) {
 		return
 	}
 
+	invalidateTaskCache(userID)
+
 	c.JSON(http.StatusOK, gin.H{"task": task})
 }
 
@@ -292,6 +325,8 @@ func DeleteTask(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Task not found"})
 		return
 	}
+
+	invalidateTaskCache(userID)
 
 	c.JSON(http.StatusOK, gin.H{"message": "Task deleted successfully"})
 }

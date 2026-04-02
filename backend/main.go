@@ -24,6 +24,7 @@ func main() {
 
 	// Connect to database
 	database.Connect(cfg)
+	database.ConnectRedis(cfg)
 
 	// Setup router
 	r := routes.SetupRouter()

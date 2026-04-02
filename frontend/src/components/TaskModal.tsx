@@ -44,8 +44,9 @@ export default function TaskModal({ isOpen, onClose, onSubmit, onDelete, task }:
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!title.trim()) {
-            setError('Title is required');
+        
+        if (!title.trim() || !description.trim() || !category || !status || !priority || !dueDate) {
+            setError('All fields are required');
             return;
         }
 
@@ -55,11 +56,11 @@ export default function TaskModal({ isOpen, onClose, onSubmit, onDelete, task }:
         try {
             const data: CreateTaskData | UpdateTaskData = {
                 title: title.trim(),
-                description: description.trim() || undefined,
+                description: description.trim(),
                 status,
                 category,
                 priority,
-                due_date: dueDate || undefined,
+                due_date: dueDate,
             };
             await onSubmit(data);
             onClose();
@@ -117,7 +118,7 @@ export default function TaskModal({ isOpen, onClose, onSubmit, onDelete, task }:
 
                     {/* Description */}
                     <div>
-                        <label className="block text-sm font-medium text-white/70 mb-1.5">Description</label>
+                        <label className="block text-sm font-medium text-white/70 mb-1.5">Description *</label>
                         <textarea
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
@@ -130,7 +131,7 @@ export default function TaskModal({ isOpen, onClose, onSubmit, onDelete, task }:
                     {/* Category & Status */}
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-white/70 mb-1.5">Category</label>
+                            <label className="block text-sm font-medium text-white/70 mb-1.5">Category *</label>
                             <select
                                 value={category}
                                 onChange={(e) => setCategory(e.target.value)}
@@ -142,7 +143,7 @@ export default function TaskModal({ isOpen, onClose, onSubmit, onDelete, task }:
                             </select>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-white/70 mb-1.5">Status</label>
+                            <label className="block text-sm font-medium text-white/70 mb-1.5">Status *</label>
                             <select
                                 value={status}
                                 onChange={(e) => setStatus(e.target.value)}
@@ -158,7 +159,7 @@ export default function TaskModal({ isOpen, onClose, onSubmit, onDelete, task }:
                     {/* Priority & Due Date */}
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-white/70 mb-1.5">Priority</label>
+                            <label className="block text-sm font-medium text-white/70 mb-1.5">Priority *</label>
                             <select
                                 value={priority}
                                 onChange={(e) => setPriority(e.target.value)}
@@ -170,7 +171,7 @@ export default function TaskModal({ isOpen, onClose, onSubmit, onDelete, task }:
                             </select>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-white/70 mb-1.5">Due Date</label>
+                            <label className="block text-sm font-medium text-white/70 mb-1.5">Due Date *</label>
                             <input
                                 type="date"
                                 value={dueDate}

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"net/http"
 	"strings"
 	"time"
@@ -11,6 +12,16 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
+
+func invalidateCashFlowCache(userID uuid.UUID) {
+	if database.RDB == nil {
+		return
+	}
+	iter := database.RDB.Scan(database.Ctx, 0, "cashflows:"+userID.String()+":*", 0).Iterator()
+	for iter.Next(database.Ctx) {
+		database.RDB.Del(database.Ctx, iter.Val())
+	}
+}
 
 type CreateCashFlowInput struct {
 	Title       string  `json:"title" binding:"required"`
@@ -44,6 +55,18 @@ var validOutcomeCategories = map[string]bool{
 
 func GetCashFlows(c *gin.Context) {
 	userID := c.MustGet("userID").(uuid.UUID)
+
+	cacheKey := "cashflows:" + userID.String() + ":" + c.Request.URL.RawQuery
+	if database.RDB != nil {
+		cached, err := database.RDB.Get(database.Ctx, cacheKey).Result()
+		if err == nil {
+			var list []models.CashFlow
+			if json.Unmarshal([]byte(cached), &list) == nil {
+				c.JSON(http.StatusOK, gin.H{"cash_flows": list})
+				return
+			}
+		}
+	}
 
 	query := database.DB.Where("user_id = ?", userID)
 
@@ -86,6 +109,12 @@ func GetCashFlows(c *gin.Context) {
 	if err := query.Find(&list).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch cash flow entries"})
 		return
+	}
+
+	if database.RDB != nil {
+		if jsonData, err := json.Marshal(list); err == nil {
+			database.RDB.Set(database.Ctx, cacheKey, jsonData, 5*time.Minute)
+		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{"cash_flows": list})
@@ -142,6 +171,8 @@ func CreateCashFlow(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create entry"})
 		return
 	}
+
+	invalidateCashFlowCache(userID)
 
 	c.JSON(http.StatusCreated, gin.H{"cash_flow": cf})
 }
@@ -227,6 +258,8 @@ func UpdateCashFlow(c *gin.Context) {
 		return
 	}
 
+	invalidateCashFlowCache(userID)
+
 	c.JSON(http.StatusOK, gin.H{"cash_flow": cf})
 }
 
@@ -250,6 +283,8 @@ func DeleteCashFlow(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Entry not found"})
 		return
 	}
+
+	invalidateCashFlowCache(userID)
 
 	c.JSON(http.StatusOK, gin.H{"message": "Entry deleted successfully"})
 }
