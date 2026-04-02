@@ -8,7 +8,7 @@
     "backend"
   ],
   "scripts": {
-    "postinstall": "cd backend && go mod download",
+    "postinstall": "if [ -z \"$VERCEL\" ]; then cd backend && go mod download; fi",
     "dev": "turbo dev",
     "build": "turbo build"
   },
