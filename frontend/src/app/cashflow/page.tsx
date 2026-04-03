@@ -177,7 +177,7 @@ export default function CashFlowPage() {
                                         <Pie data={chartData.outcome} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} innerRadius={60} paddingAngle={2}>
                                             {chartData.outcome.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
                                         </Pie>
-                                        <RechartsTooltip formatter={(value: number | undefined) => `Rp ${Number(value || 0).toLocaleString('id-ID')}`} contentStyle={{ backgroundColor: '#162130', borderColor: '#3b5168', color: '#fff' }} />
+                                        <RechartsTooltip formatter={(value: any) => `Rp ${Number(value || 0).toLocaleString('id-ID')}`} contentStyle={{ backgroundColor: '#162130', borderColor: '#3b5168', color: '#fff' }} />
                                         <Legend wrapperStyle={{ fontSize: '12px' }} />
                                     </PieChart>
                                 </ResponsiveContainer>
@@ -196,7 +196,7 @@ export default function CashFlowPage() {
                                         <Pie data={chartData.income} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} innerRadius={60} paddingAngle={2}>
                                             {chartData.income.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[(index + 3) % COLORS.length]} />)}
                                         </Pie>
-                                        <RechartsTooltip formatter={(value: number | undefined) => `Rp ${Number(value || 0).toLocaleString('id-ID')}`} contentStyle={{ backgroundColor: '#162130', borderColor: '#3b5168', color: '#fff' }} />
+                                        <RechartsTooltip formatter={(value: any) => `Rp ${Number(value || 0).toLocaleString('id-ID')}`} contentStyle={{ backgroundColor: '#162130', borderColor: '#3b5168', color: '#fff' }} />
                                         <Legend wrapperStyle={{ fontSize: '12px' }} />
                                     </PieChart>
                                 </ResponsiveContainer>
