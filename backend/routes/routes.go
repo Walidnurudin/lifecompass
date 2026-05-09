@@ -12,6 +12,8 @@ import (
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
+	r.SetTrustedProxies(nil)
+
 	// CORS configuration
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{os.Getenv("FRONTEND_URL")},
@@ -20,6 +22,14 @@ func SetupRouter() *gin.Engine {
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 	}))
+
+	// Leapcell Healthchecks
+	r.GET("/kaithhealthcheck", func(c *gin.Context) {
+		c.String(200, "OK")
+	})
+	r.GET("/kaithheathcheck", func(c *gin.Context) {
+		c.String(200, "OK")
+	})
 
 	api := r.Group("/api")
 	{
