@@ -10,7 +10,13 @@ import (
 )
 
 func SetupRouter() *gin.Engine {
-	r := gin.Default()
+	r := gin.New()
+
+	// Skip logging for healthcheck endpoints to prevent log spam
+	r.Use(gin.LoggerWithConfig(gin.LoggerConfig{
+		SkipPaths: []string{"/kaithhealthcheck", "/kaithheathcheck"},
+	}))
+	r.Use(gin.Recovery())
 
 	r.SetTrustedProxies(nil)
 
