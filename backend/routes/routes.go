@@ -23,6 +23,12 @@ func SetupRouter() *gin.Engine {
 
 	api := r.Group("/api")
 	{
+		api.GET("/test", func(c *gin.Context) {
+			c.JSON(200, gin.H{
+				"message": "API is working",
+			})
+		})
+
 		auth := api.Group("/auth")
 		{
 			auth.POST("/register", handlers.Register)
