@@ -3,7 +3,6 @@ package routes
 import (
 	"lifecompass-backend/handlers"
 	"lifecompass-backend/middleware"
-	"os"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
