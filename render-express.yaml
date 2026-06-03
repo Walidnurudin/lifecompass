@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: lifecompass-api-express
+    runtime: node
+    rootDir: backend-express
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: "5432"
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: DB_SSLMODE
+        value: "require"
+      - key: JWT_SECRET
+        generateValue: true
+      - key: PORT
+        value: "8080"
+      - key: FRONTEND_URL
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: REDIS_URL
+        sync: false
