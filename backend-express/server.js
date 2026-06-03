@@ -11,28 +11,18 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-// Bootstrap database and Redis connections
-async function bootstrap() {
-  try {
-    // 1. Test database connection
-    await db.query('SELECT NOW()');
-    console.log('Database connected successfully');
+// Setup application router synchronously (critical for Vercel/serverless)
+setupRouter(app);
 
-    // 2. Connect to Redis (optional/warning on failure, doesn't crash the server)
-    await connectRedis();
+// Connect to Redis in the background (caching)
+connectRedis();
 
-    // 3. Setup application router
-    setupRouter(app);
-
-    // 4. Start listening
-    const PORT = config.port;
-    app.listen(PORT, () => {
-      console.log(`Server starting on port ${PORT}`);
-    });
-  } catch (err) {
-    console.error('Fatal initialization error:', err);
-    process.exit(1);
-  }
+// Only start the listening server when run directly (local development)
+if (require.main === module || !process.env.VERCEL) {
+  const PORT = config.port || 8080;
+  app.listen(PORT, () => {
+    console.log(`Server starting on port ${PORT}`);
+  });
 }
 
-bootstrap();
+module.exports = app;
